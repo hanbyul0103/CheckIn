@@ -1,0 +1,16 @@
+{
+  "name": "checkin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "date-holidays": "^3.26.1",
+    "discord.js": "^14.22.1",
+    "node-cron": "^4.2.1"
+  }
+}
