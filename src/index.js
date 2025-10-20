@@ -32,13 +32,13 @@ const threadInfo = {
 
 // === 스케줄 설정 ===
 const scheduleTest = "1 * * * * *"; // 테스트용 cron
-const schedule = "0 0 8 * * 1-5";   // 이게 진짜임
+const schedule = "0 0 5 * * 1-5";   // 이게 진짜임
 
 client.on("ready", async () => { // ready가 불리면 / 봇이 켜지면
     console.log("[!] 봇 로그인 완료"); // 로그인 확인
 
     // 스케줄 등록
-    cron.schedule(scheduleTest, async () => {
+    cron.schedule(schedule, async () => {
         await handleDailyPosts(); // 포스트 생성
     });
 });
