@@ -49,6 +49,8 @@ async function handleDailyPosts() {
     const month = today.getMonth() + 1; // getMonth() 는 0~11, +1 해주기
     const day = today.getDate(); // 날짜 가져오기
 
+    let wakeupPost, workPost;
+
     // 공휴일이면 포스트 생성하지 않음
     if (hd.isHoliday(today)) {
         console.log("오늘은 공휴일입니다. 포스트 생성을 건너뜁니다.");
@@ -57,18 +59,19 @@ async function handleDailyPosts() {
 
     const { wakeup, work } = threadInfo;
 
-    // 기상 인증 포스트 생성
-    await createPost(config.targetForumId, `${month}.${day} ${wakeup.name}`, `<@&${wakeup.roleId}> ${wakeup.message}`, wakeup.tagId);
+    // 기상 인증 포스트 삭제 후 생성
+    closePost(wakeupPost.id);
+    wakeupPost = await createPost(config.targetForumId, `${month}.${day} ${wakeup.name}`, `<@&${wakeup.roleId}> ${wakeup.message}`, wakeup.tagId);
 
-    // 출근 인증 포스트 생성
-    await createPost(config.targetForumId, `${month}.${day} ${work.name}`, `<@&${work.roleId}> ${work.message}`, work.tagId);
+    // 출근 인증 포스트 삭제 후 생성
+    workPost = await createPost(config.targetForumId, `${month}.${day} ${work.name}`, `<@&${work.roleId}> ${work.message}`, work.tagId);
 
     console.log(`[${month}.${day}] 포스트 생성 완료`);
 }
 
 // === 포스트 생성 함수 ===
 async function createPost(targetForum, threadName, threadMessage, tag) {
-    const forumChannel = client.channels.cache.get(targetForum) // 캐시 우선
+    const forumChannel = client.channels.cache.get(targetForum) // 캐시 우선으로 하면 빠름
         ?? await client.channels.fetch(targetForum); // 없으면 fetch
 
     // 실제 채널 찾는 작업 필요
@@ -81,6 +84,20 @@ async function createPost(targetForum, threadName, threadMessage, tag) {
     });
 
     return newThread; // 새로 만든 thread 객체 반환
+}
+
+async function closePost(threadId) {
+    const thread = client.channels.cache.get(threadId)
+        ?? await client.channels.fetch(threadId);
+
+    if (!thread.isThread()) {
+        console.log('이 채널은 스레드가 아닙니다.');
+    }
+
+    // 닫기 (아카이브)
+    await thread.setArchived(true);
+
+    return thread;
 }
 
 client.login(config.token); // 로그인
